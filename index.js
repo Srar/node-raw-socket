@@ -29,6 +29,9 @@ var Protocol = {
 
 _expandConstantObject (Protocol);
 
+var SOCKET_ERROR = -1;
+var SOCKET_NO_AVA_BUFFER = 105;
+
 for (var key in events.EventEmitter.prototype) {
   raw.SocketWrap.prototype[key] = events.EventEmitter.prototype[key];
 }
@@ -94,17 +97,26 @@ Socket.prototype.onRecvReady = function () {
 
 Socket.prototype.onSendReady = function () {
 	if (this.requests.length > 0) {
-		var me = this;
-		var req = this.requests.shift ();
-		try {
+		while(true) {
+			let req = this.requests.shift();
+			if (!req) {
+				return;
+			}
+
 			if (req.beforeCallback)
-				req.beforeCallback ();
-			this.wrap.send (req.buffer, req.offset, req.length,
-					req.address, function (bytes) {
-				req.afterCallback.call (me, null, bytes);
+				 req.beforeCallback();
+				 
+			this.wrap.send(req.buffer, req.offset, req.length, req.address, (bytes, errorNo, errorMsg) => {
+				if (errorMsg) {
+					if (errorNo == SOCKET_NO_AVA_BUFFER) {
+						this.requests.push(req);
+						return;
+					}
+					req.afterCallback.call (this, errorMsg, 0);
+					return;
+				}
+				req.afterCallback.call (this, null, bytes);
 			});
-		} catch (error) {
-			req.afterCallback.call (me, error, 0);
 		}
 	} else {
 		if (! this.sendPaused)

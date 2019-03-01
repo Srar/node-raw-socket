@@ -678,15 +678,17 @@ NAN_METHOD(SocketWrap::Send) {
 				(struct sockaddr *) &addr, sizeof (addr));
 	}
 	
-	if (rc == SOCKET_ERROR) {
-		Nan::ThrowError(raw_strerror (SOCKET_ERRNO));
-		return;
-	}
-	
 	Local<Function> cb = Local<Function>::Cast (info[4]);
-	const unsigned argc = 1;
+	const unsigned argc = 3;
 	Local<Value> argv[argc];
 	argv[0] = Nan::New<Number>(rc);
+	if (rc == SOCKET_ERROR) {
+		argv[1] = Nan::New<Number>(SOCKET_ERRNO);
+		argv[2] = Nan::New(raw_strerror (SOCKET_ERRNO)).ToLocalChecked();
+	} else {
+		argv[1] = Nan::Undefined();
+		argv[2] = Nan::Undefined();
+	}
 	cb->Call (socket->handle(), argc, argv);
 	
 	info.GetReturnValue().Set(info.This());

@@ -9,6 +9,9 @@
   "dependencies": {
     "nan": "2.10.*"
   },
+  "scripts": {
+    "build": "node-gyp rebuild"
+  },
   "contributors": [
     {
       "name": "Stephen Vickers",
@@ -17,11 +20,15 @@
     {
       "name": "NoSpaceships Ltd",
       "email": "hello@nospaceships.com"
+    },
+    {
+      "name": "Srar",
+      "email": "a1020938070@gmail.com"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/nospaceships/node-raw-socket.git"
+    "url": "git://github.com/Srar/node-raw-socket.git"
   },
   "keywords": [
     "checksum",
